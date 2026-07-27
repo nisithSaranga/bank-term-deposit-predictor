@@ -6,6 +6,7 @@ Predicting whether a bank customer will subscribe to a term deposit — built fo
 ![XGBoost](https://img.shields.io/badge/Model-XGBoost-green)
 ![Streamlit](https://img.shields.io/badge/App-Streamlit-red)
 
+Kaggle competition: [Binary Classification with a Bank Dataset](https://www.kaggle.com/competitions/sch2-reg-2026-d5-1) 
 ## Overview
 
 Seven models were built, evaluated, and compared across five technique categories (regression, ensemble bagging, ensemble boosting, SVM, neural network), then deployed as an interactive prediction app with per-prediction SHAP explainability — not just a prediction, but a reason for it.
