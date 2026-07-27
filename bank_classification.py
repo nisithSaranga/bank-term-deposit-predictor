@@ -74,3 +74,45 @@ assert list(submission.columns) == list(sample_submission.columns)
 assert (submission['id'].values == sample_submission['id'].values).all()
 submission.to_csv('submission_1_logreg.csv', index=False)
 print('saved:', submission.shape)
+
+# %%
+from sklearn.ensemble import RandomForestClassifier
+
+rf_pipe = Pipeline([
+    ('prep', make_preprocessor()),
+    ('clf', RandomForestClassifier(n_estimators=100, max_depth=10, n_jobs=-1, class_weight='balanced', random_state=RANDOM_STATE))
+])
+rf_pipe.fit(X_tr, y_tr)
+rf_auc = roc_auc_score(y_val, rf_pipe.predict_proba(X_val)[:, 1])
+print(f'Random Forest holdout AUC: {rf_auc:.4f}')
+
+# %%
+rf_pipe.fit(X, y)
+submission2 = pd.DataFrame({'id': test['id'], 'y': rf_pipe.predict_proba(X_test)[:, 1]})
+submission2.to_csv('submission_2_randomforest.csv', index=False)
+print('saved:', submission2.shape)
+
+# %%
+from xgboost import XGBClassifier
+
+scale_pos_weight = (y_tr == 0).sum() / (y_tr == 1).sum()  # XGBoost's version of class_weight='balanced'
+
+xgb_pipe = Pipeline([
+    ('prep', make_preprocessor()),
+    ('clf', XGBClassifier(n_estimators=300, max_depth=6, learning_rate=0.1, eval_metric='auc',
+                           scale_pos_weight=scale_pos_weight, n_jobs=-1, random_state=RANDOM_STATE))
+])
+xgb_pipe.fit(X_tr, y_tr)
+xgb_auc = roc_auc_score(y_val, xgb_pipe.predict_proba(X_val)[:, 1])
+print(f'XGBoost holdout AUC: {xgb_auc:.4f}')
+
+# %%
+xgb_pipe.fit(X, y)
+submission3 = pd.DataFrame({'id': test['id'], 'y': xgb_pipe.predict_proba(X_test)[:, 1]})
+submission3.to_csv('submission_3_xgboost.csv', index=False)
+print('saved:', submission3.shape)
+
+# %%
+print(f"Logistic Regression : {logreg_auc:.4f}")
+print(f"Random Forest        : {rf_auc:.4f}")
+print(f"XGBoost               : {xgb_auc:.4f}")
