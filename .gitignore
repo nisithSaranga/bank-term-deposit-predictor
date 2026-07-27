@@ -1,0 +1,9 @@
+train.csv
+test.csv
+sample_submission.csv
+submission_*.csv
+*.joblib
+__pycache__/
+*.pyc
+.vscode/
+screenshots/
