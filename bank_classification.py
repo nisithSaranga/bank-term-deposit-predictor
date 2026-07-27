@@ -116,3 +116,40 @@ print('saved:', submission3.shape)
 print(f"Logistic Regression : {logreg_auc:.4f}")
 print(f"Random Forest        : {rf_auc:.4f}")
 print(f"XGBoost               : {xgb_auc:.4f}")
+
+# %%
+from sklearn.svm import SVC
+
+X_svm_sub, _, y_svm_sub, _ = train_test_split(X, y, train_size=20000, stratify=y, random_state=RANDOM_STATE)
+X_svm_tr, X_svm_val, y_svm_tr, y_svm_val = train_test_split(X_svm_sub, y_svm_sub, test_size=0.2, stratify=y_svm_sub, random_state=RANDOM_STATE)
+
+svm_pipe = Pipeline([
+    ('prep', make_preprocessor()),
+    ('clf', SVC(kernel='rbf', probability=True, class_weight='balanced', random_state=RANDOM_STATE))
+])
+svm_pipe.fit(X_svm_tr, y_svm_tr)
+svm_auc = roc_auc_score(y_svm_val, svm_pipe.predict_proba(X_svm_val)[:, 1])
+print(f'SVM (20,000-row subsample) holdout AUC: {svm_auc:.4f}')
+
+# %% 
+svm_pipe.fit(X_svm_sub, y_svm_sub)  # refit on the full 20k subsample, not just the 80% split
+submission4 = pd.DataFrame({'id': test['id'], 'y': svm_pipe.predict_proba(X_test)[:, 1]})
+submission4.to_csv('submission_4_svm.csv', index=False)
+print('saved:', submission4.shape)
+
+# %%
+from sklearn.neural_network import MLPClassifier
+
+mlp_pipe = Pipeline([
+    ('prep', make_preprocessor()),
+    ('clf', MLPClassifier(hidden_layer_sizes=(64, 32), activation='relu', max_iter=60, early_stopping=True, random_state=RANDOM_STATE))
+])
+mlp_pipe.fit(X_tr, y_tr)
+mlp_auc = roc_auc_score(y_val, mlp_pipe.predict_proba(X_val)[:, 1])
+print(f'Neural Network holdout AUC: {mlp_auc:.4f}')
+
+# %%
+mlp_pipe.fit(X, y)
+submission5 = pd.DataFrame({'id': test['id'], 'y': mlp_pipe.predict_proba(X_test)[:, 1]})
+submission5.to_csv('submission_5_neuralnet.csv', index=False)
+print('saved:', submission5.shape)  
