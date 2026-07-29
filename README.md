@@ -45,13 +45,13 @@ Streamlit app takes a customer profile and returns a subscription probability �
 `Python` · `pandas` · `scikit-learn` · `XGBoost` · `SHAP` · `Streamlit` · `joblib`
 
 ## Project structure
-
+```
 ├── app.py # Streamlit prediction app
 ├── bank_classification.py # EDA, model training, evaluation
 ├── best_model_pipeline.joblib # Saved tuned XGBoost pipeline
 ├── requirements.txt
 └── .streamlit/config.toml # App theme
-
+```
 ## Running it locally
 
 ```bash
